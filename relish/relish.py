@@ -54,29 +54,9 @@ def process_flags():
     #if sys.argv[1] == -s and sys.argv[2] == type(int):
 '''
 
+def pic_parameters(infolder, outfolder):
+    '''Select Picture Resolution Parameters'''
 
-def main():
-    '''wire up main'''
-
-#    if len(sys.argv) > 1:
-#        process_flags()
-    os.system('clear')
-    homedir = expanduser('~') + '/Pictures/'
-    print('Your Pictures folder is {}'.format(homedir))
-    print('')
-    confirm = raw_input('Do you want to work in this folder? (Y/N)')
-    
-    if 'Y' in confirm or 'y' in confirm:
-        source_folder = raw_input('Source folder in {}'.format(homedir))
-        dest_folder = raw_input('Destination folder in {}'.format(homedir))
-        infolder = homedir + source_folder
-        outfolder = homedir + dest_folder
-    else:
-        print('Which folders would you like to use? Do not Include the \
-              trailing "/"')
-        infolder = raw_input('Source folder:> ')
-        outfolder = raw_input('Destination folder:> ')
-    
     sizes = {
         'P': '2376',
         'L': '1024',
@@ -109,7 +89,35 @@ def main():
 
     else:
         print 'Invalid entry, try again...'
-        main()
+        pic_parameters(infolder, outfolder)
+
+
+
+def main():
+    '''Select working folders'''
+
+#    if len(sys.argv) > 1:
+#        process_flags()
+
+    os.system('clear')
+    homedir = expanduser('~') + '/Pictures/'
+    print('Your Pictures folder is {}'.format(homedir))
+    print('')
+    confirm = raw_input('Do you want to work in this folder? (Y/N)')
+    
+    if 'Y' in confirm or 'y' in confirm:
+        source_folder = raw_input('Source folder in {}'.format(homedir))
+        dest_folder = raw_input('Destination folder in {}'.format(homedir))
+        infolder = homedir + source_folder
+        outfolder = homedir + dest_folder
+    else:
+        print('Which folders would you like to use? Do not Include the \
+              trailing "/"')
+        infolder = raw_input('Source folder:> ')
+        outfolder = raw_input('Destination folder:> ')
+    
+    pic_parameters(infolder, outfolder)
+       
 
 if __name__ == '__main__':
     main()

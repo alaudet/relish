@@ -5,6 +5,7 @@ from PIL import Image
 import os
 from os.path import expanduser
 
+
 def dir_list(indir):
     '''Return a list of files as strings'''
     return os.listdir(indir)
@@ -32,31 +33,12 @@ def resize(indir, outdir, new_width):
         i += 1
 
 
-'''
-def help():
-    
-    print('e.g. usage: relish.py -s 1024 -i ~/pics -o ~/processed_pics -q 95')
-    print('-h, --help         this help screen')
-    print('-s, --size         new horizontal size')
-    print('-i, --infolder     source image folder')
-    print('-o, --outfolder    destination image folder')
-    print('-q, --quality      image quality')
-    exit(0)
-'''
-
-'''
-def process_flags():
-
-    if sys.argv[1] == '-h' or sys.argv[1] == '--help':
-        print len(sys.argv)
-        help()
-
-    #if sys.argv[1] == -s and sys.argv[2] == type(int):
-'''
-
 def pic_parameters(infolder, outfolder):
     '''Select Picture Resolution Parameters'''
 
+    # for 'sizes' only need the width as we will calculate the
+    # height based on a percentage to keep the proper aspect ratio when
+    # resizing
     sizes = {
         'P': '2376',
         'L': '1024',
@@ -92,19 +74,15 @@ def pic_parameters(infolder, outfolder):
         pic_parameters(infolder, outfolder)
 
 
-
 def main():
     '''Select working folders'''
-
-#    if len(sys.argv) > 1:
-#        process_flags()
 
     os.system('clear')
     homedir = expanduser('~') + '/Pictures/'
     print('Your Pictures folder is {}'.format(homedir))
     print('')
     confirm = raw_input('Do you want to work in this folder? (Y/N)')
-    
+
     if 'Y' in confirm or 'y' in confirm:
         source_folder = raw_input('Source folder in {}'.format(homedir))
         dest_folder = raw_input('Destination folder in {}'.format(homedir))
@@ -115,9 +93,9 @@ def main():
               trailing "/"')
         infolder = raw_input('Source folder:> ')
         outfolder = raw_input('Destination folder:> ')
-    
+
     pic_parameters(infolder, outfolder)
-       
+
 
 if __name__ == '__main__':
     main()

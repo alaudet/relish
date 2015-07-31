@@ -3,6 +3,7 @@
 
 from PIL import Image
 import os
+import sys
 from os.path import expanduser
 
 
@@ -10,8 +11,10 @@ def dir_list(indir):
     '''Return a list of files as strings'''
     return os.listdir(indir)
 
+def enlarge_size(indir, outdir, new_width):
+    return
 
-def resize(indir, outdir, new_width):
+def shrink_size(indir, outdir, new_width):
     '''resize images based on parameters using the PILLOW library'''
 
     images = dir_list(indir)
@@ -39,7 +42,18 @@ def pic_parameters(infolder, outfolder):
     # for 'sizes' only need the width as we will calculate the
     # height based on a percentage to keep the proper aspect ratio when
     # resizing
-    sizes = {
+    while True:
+
+        print('(S)hrink or (E)nlarge?')
+        size_operation = raw_input('>: ')
+        possible_inputs = {'S','s','E','e'}
+
+        if size_operation not in possible_inputs:
+            print 'Invalid entry, try again...'
+            continue
+
+
+        sizes = {
         'P': '2376',
         'L': '1024',
         'W': '800',
@@ -54,31 +68,56 @@ def pic_parameters(infolder, outfolder):
         't': '128'
         }
 
-    print('''Resize for:
+        print('''Resize for:
           (P)rinting,
           (L)arge Format,
           (W)eb,
           (E)mail,
           (S)mall,
-          (T)humbnail''')
+          (T)humbnail
+          (R)ETURN TO MENU
+          (Q)UIT''')
 
-    size = raw_input('>: ')
+        size = raw_input('>: ')
 
-    if size in sizes.keys():
-        resize(
-            infolder + '/', outfolder + '/', sizes[size]
-            )
+        if size == 'r' or size == 'R':
+            continue
 
-    else:
-        print 'Invalid entry, try again...'
+        if size == 'Q' or size == 'q':
+            print 'quit.'
+            break
+
+        if size in sizes.keys():
+
+            shrink_size(
+                infolder + '/', outfolder + '/', sizes[size]
+                )
+
+            enlarge_size(
+                infolder + '/', outfolder + '/', sizes[size]
+                )
+
+
+        else:
+            print 'Invalid entry, try again...'
+
         pic_parameters(infolder, outfolder)
+        break
 
 
 def main():
     '''Select working folders'''
+    operating_system = sys.platform
 
-    os.system('clear')
-    homedir = expanduser('~') + '/Pictures/'
+    operating_system = sys.platform
+    if operating_system == 'win32':
+        os.system('cls')
+        homedir = expanduser('~') + '\Pictures\\'
+    else:
+        os.system('clear')
+        homedir = expanduser('~') + '/Pictures/'
+
+
     print('Your Pictures folder is {}'.format(homedir))
     print('')
     confirm = raw_input('Do you want to work in this folder? (Y/N)')
@@ -89,10 +128,16 @@ def main():
         infolder = homedir + source_folder
         outfolder = homedir + dest_folder
     else:
-        print('Which folders would you like to use? Do not Include the \
-              trailing "/"')
+        if operating_system == 'win32':
+            print('Which folders would you like to use? Do not Include the trailing "\\"')
+        else:
+            print('Which folders would you like to use? Do not Include the \
+                trailing "/"')
+
         infolder = raw_input('Source folder:> ')
-        outfolder = raw_input('Destination folder:> ')
+        outfolder = raw_input('Destination folder(S for same):> ')
+    if 'S' in outfolder or 's' in outfolder:
+        outfolder = infolder
 
     pic_parameters(infolder, outfolder)
 

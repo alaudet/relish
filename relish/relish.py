@@ -1,7 +1,9 @@
 #!/usr/bin/python
-'''Resize a group of images to a predefined or custom resolution'''
+'''Resize a group of images to a predefined or custom resolution
+Modify image appearance and add a frame and a watermark'''
 
-from PIL import Image, ImageEnhance
+
+from PIL import Image, ImageEnhance, ImageFont, ImageDraw
 import os
 import sys
 from os.path import expanduser
@@ -36,43 +38,100 @@ def resize(indir, outdir, new_width):
     print "\nFinished. \nAnything else?\n"
 
 
-def apply_filter_contrast(indir, outdir):
-
-    print "Amount of contrast change (0-10)" \
+def apply_filter_contrast_color_sharpen(indir, outdir, operation):
+    '''apply filter and image modification bases on parameter input using the PILLOW library'''
+    if operation == 'e':
+        print "Amount of contrast change (0-10)" \
               "<1: lower contrast, >1: increase contrast."
+
+    if operation == 'c':
+        print "Amount of color change (0-10)" \
+              "<1: lower color saturation, >1: increase color saturation."
+
+    if operation == 's':
+        print "Amount of sharpness change (0-10)" \
+              "<1: lower sharpness, >1: increase sharpness."
 
     while True:
 
-        contrast_modifier = raw_input('>: ')
+        modifier_value = raw_input('>: ')
 
-        if float(contrast_modifier) < 0 or float(contrast_modifier) > 10:
-            print "enter number in range"
+        try:
+            float(modifier_value)
+        except ValueError:
+            print "--please enter a real number--"
+            continue
+
+        if float(modifier_value) < 0 or float(modifier_value) > 10:
+            print "enter number in range (0-10)"
         else:
             break
-
 
     picture_list = dir_list(indir)
     counter_processed = 1
     img_quality = 95
-    numpics = len(picture_list)
+    num_pics = len(picture_list)
 
     for current_file_name in picture_list:
         image_object = Image.open(indir + current_file_name)
-        contrast_object = ImageEnhance.Contrast(image_object)
-        contrast_object.enhance(float(contrast_modifier)).save(outdir + current_file_name, quality=img_quality)
-        print('Processed {} - {} of {}'.format(current_file_name, counter_processed, numpics))
+
+        if operation == 'e':
+            modifier_object = ImageEnhance.Contrast(image_object)
+        if operation == 'c':
+            modifier_object = ImageEnhance.Color(image_object)
+        else:
+            modifier_object = ImageEnhance.Sharpness(image_object)
+
+        modifier_object.enhance(float(modifier_value)).save(outdir + current_file_name, quality=img_quality)
+        print('Processed {} - {} of {}'.format(current_file_name, counter_processed, num_pics))
         counter_processed += 1
 
     print "\nFinished. \nAnything else?\n"
 
 
+def apply_filter_watermark(indir , outdir, text_string_watermark):
+    '''add water mark to image using PILLOW library'''
+    picture_list = dir_list(indir)
+    counter_processed = 1
+    img_quality = 95
+    num_pics = len(picture_list)
+
+    for current_file_name in picture_list:
+        image_object = Image.open(indir + current_file_name).convert('RGBA')
+        text_image_overlay = Image.new('RGBA', image_object.size, (255,255,255,0))
+        font_watermark = ImageFont.load_default()
+        draw_object = ImageDraw.Draw(text_image_overlay)
+        draw_object.text((10,10), text_string_watermark, font=font_watermark, fill=(255,255,255,128))
+        overlay = Image.alpha_composite(image_object, text_image_overlay)
+        overlay.save(outdir + current_file_name, quality=img_quality)
+
+        print('Processed {} - {} of {}'.format(current_file_name, counter_processed, num_pics))
+        counter_processed += 1
+
+    print "\nFinished. \nAnything else?\n"
 
 
-def filter_switch_function(case, indir, outdir):
-    return {
-        'E': apply_filter_contrast(indir, outdir),
-    }
+def apply_filter_frame(indir, outdir, size_frame):
+    '''add frame inside image using PILLOW library'''
+    picture_list = dir_list(indir)
+    counter_processed = 1
+    img_quality = 95
+    num_pics = len(picture_list)
+    for current_file_name in picture_list:
+        image_object = Image.open(indir + current_file_name).convert('RGBA')
 
+        draw = ImageDraw.Draw(image_object)
+        draw.line((0,0, image_object.size[0],0), fill=0, width=int(size_frame))
+        draw.line((0, image_object.size[1],image_object.size[0], image_object.size[1]), fill=0, width=int(size_frame))
+        draw.line((0,0,0,image_object.size[1]), fill=0, width=int(size_frame))
+        draw.line((image_object.size[0],0, image_object.size[0], image_object.size[1]), fill=0, width=int(size_frame))
+
+        image_object.save(outdir + current_file_name, quality=img_quality)
+
+        print('Processed {} - {} of {}'.format(current_file_name, counter_processed, num_pics))
+        counter_processed += 1
+
+    print "\nFinished. \nAnything else?\n"
 
 
 def filter_images(indir, outdir):
@@ -80,38 +139,49 @@ def filter_images(indir, outdir):
     while True:
 
         print('''Choose filter:
-          (E)nhance contrast,
-          (T)ile to mosaic,
-          (B)lack and white,
-          (D)ramaticize,
-          (A)dd black frame,
-          (R)ETURN TO MENU''')
+            (E)nhance contrast,
+            (C)olor saturation,
+            (S)harpen,
+            (D)raw black frame
+            (A)dd watermark text
+            (R)ETURN TO MENU''')
 
         filter_choice = raw_input('>: ')
 
         if filter_choice == 'r' or filter_choice == 'R':
             break
 
-        list_of_choices = {'E','e','T','t','B','b','D','d','A','a'}
+        list_of_choices = {'E','e','C','c','S','s','D','d','A','a'}
 
         if filter_choice not in list_of_choices:
-            print 'Invalid entry, try again...'
+            print '--Invalid entry, try again...--'
             continue
+
+        if filter_choice == 'a' or filter_choice == 'A':
+            print 'enter text for watermark:'
+            text_string_watermark = raw_input('>: ')
+            apply_filter_watermark(indir + '/', outdir + '/', text_string_watermark)
+            continue
+
+        if filter_choice == 'd' or filter_choice == 'D':
+            while True:
+                print 'enter width of frame in pixel:'
+                size_frame = raw_input('>: ')
+
+                try:
+                    float(size_frame)
+                except ValueError:
+                    print "--please enter a real number--"
+                    continue
+                else:
+                    break
+
+            apply_filter_frame(indir + '/', outdir + '/',size_frame)
+            continue
+
         else:
-            filter_switch_function(filter_choice, indir + '/', outdir + '/',)
-            break
-
-
-
-
-
-
-
-
-
-
-
-
+            apply_filter_contrast_color_sharpen(indir + '/', outdir + '/', filter_choice)
+            continue
 
 
 def resize_images(infolder, outfolder):
@@ -151,12 +221,9 @@ def resize_images(infolder, outfolder):
                 infolder + '/', outfolder + '/', sizes[size]
                 )
         else:
-            print 'Invalid entry, try again...'
+            print '--Invalid entry, try again...--'
 
-        pic_parameters(infolder, outfolder)
         break
-
-
 
 
 def pic_parameters(infolder, outfolder):
@@ -167,34 +234,28 @@ def pic_parameters(infolder, outfolder):
     # resizing
     while True:
 
-        print('(R)esize, (A)dd Filter or (q)uit?')
+        print('\nChoose action: \n(R)esize, (A)dd Filter or (Q)UIT?')
         pic_operation = raw_input('>: ')
         possible_inputs = {'R','r','A','a'}
 
         if pic_operation == 'Q' or pic_operation == 'q':
-            print "quit."
+            print "**** quit ****."
             break
 
         if pic_operation not in possible_inputs:
-            print 'Invalid entry, try again...'
+            print '--Invalid entry, try again...--'
             continue
 
         if pic_operation == 'r' or pic_operation == 'R':
             resize_images(infolder, outfolder)
-            break
-        else:
+
+        if pic_operation == 'a' or pic_operation == 'A':
             filter_images(infolder, outfolder)
-
-
-
-
-
-
-
 
 
 def main():
     '''Select working folders'''
+
     operating_system = sys.platform
 
     operating_system = sys.platform
@@ -206,7 +267,7 @@ def main():
         homedir = expanduser('~') + '/Pictures/'
 
 
-    print('Your Pictures folder is {}'.format(homedir))
+    print('\n****Your Pictures folder is {}'.format(homedir))
     print('')
     confirm = raw_input('Do you want to work in this folder? (Y/N)')
 
@@ -223,12 +284,11 @@ def main():
                 trailing "/"')
 
         infolder = raw_input('Source folder:> ')
-        outfolder = raw_input('Destination folder (s for same):> ')
+        outfolder = raw_input('Destination folder (type S for same):> ')
     if 'S' in outfolder or 's' in outfolder:
         outfolder = infolder
 
     pic_parameters(infolder, outfolder)
-
 
 
 if __name__ == '__main__':

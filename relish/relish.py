@@ -134,7 +134,7 @@ def apply_filter_frame(indir, outdir, size_frame):
     print "\nFinished. \nAnything else?\n"
 
 
-def filter_images(indir, outdir):
+def filter_images_menu(indir, outdir):
 
     while True:
 
@@ -184,7 +184,7 @@ def filter_images(indir, outdir):
             continue
 
 
-def resize_images(infolder, outfolder):
+def resize_images_menu(infolder, outfolder):
     while True:
         sizes = {
         'P': '2376',
@@ -247,10 +247,10 @@ def pic_parameters(infolder, outfolder):
             continue
 
         if pic_operation == 'r' or pic_operation == 'R':
-            resize_images(infolder, outfolder)
+            resize_images_menu(infolder, outfolder)
 
         if pic_operation == 'a' or pic_operation == 'A':
-            filter_images(infolder, outfolder)
+            filter_images_menu(infolder, outfolder)
 
 
 def main():

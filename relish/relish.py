@@ -285,8 +285,8 @@ def main():
 
         infolder = raw_input('Source folder:> ')
         outfolder = raw_input('Destination folder (type S for same):> ')
-    if 'S' in outfolder or 's' in outfolder:
-        outfolder = infolder
+        if outfolder == 'S' or outfolder == 's':
+            outfolder = infolder
 
     pic_parameters(infolder, outfolder)
 
